@@ -1,0 +1,8 @@
+Dockerfile
+.idea
+.mvn
+.vscode
+target
+node_modules/*
+/src/main/dev-bundle/webapp/*
+/frontend/generated/*
