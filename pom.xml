@@ -1,45 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.example.application</groupId>
-    <artifactId>untitled</artifactId>
+    <!-- Project from https://start.vaadin.com/ -->
+    <groupId>de.ostfalia.soe</groupId>
+    <artifactId>softwareengineering</artifactId>
+    <name>SOE</name>
     <version>1.0-SNAPSHOT</version>
-
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>21</java.version>
-        <vaadin.version>24.8.0</vaadin.version>
-        <archunit.version>1.4.1</archunit.version>
+        <java.version>17</java.version>
+        <vaadin.version>24.4.8</vaadin.version>
+
     </properties>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.0</version>
-        <relativePath/>
+        <version>3.2.5</version>
     </parent>
-
     <repositories>
         <repository>
-            <id>vaadin-directory</id>
+            <id>Vaadin Directory</id>
             <url>https://maven.vaadin.com/vaadin-addons</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
         </repository>
         <repository>
-            <id>vaadin-prereleases</id>
-            <url>https://maven.vaadin.com/vaadin-prereleases</url>
-        </repository>
-    </repositories>
+            <id>central</id>
+            <name>Maven Central</name>
 
-    <pluginRepositories>
+            <url>https://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+    </repositories>
+   <!-- <pluginRepositories>
         <pluginRepository>
-            <id>vaadin-prereleases</id>
-            <url>https://maven.vaadin.com/vaadin-prereleases</url>
+            <id>sonatype-snapshot-repository</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </pluginRepository>
-    </pluginRepositories>
+    </pluginRepositories> -->
+
 
     <dependencyManagement>
         <dependencies>
@@ -54,121 +66,115 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Vaadin -->
         <dependency>
             <groupId>com.vaadin</groupId>
-            <!-- Replace artifactId with vaadin-core to use only free components -->
-            <artifactId>vaadin</artifactId>
+            <!-- Replace artifactId with vaadin to use only pro components -->
+            <artifactId>vaadin-core</artifactId>
+            <version>${vaadin.version}</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
+            <version>${vaadin.version}</version>
         </dependency>
         <dependency>
-            <!-- Remove if you are not going to use Control Center -->
-            <groupId>com.vaadin</groupId>
-            <artifactId>control-center-starter</artifactId>
+            <groupId>org.parttio</groupId>
+            <artifactId>line-awesome</artifactId>
+            <version>1.1.0</version>
         </dependency>
-
-        <!-- Persistence -->
+        <!-- https://mvnrepository.com/artifact/com.influxdb/influxdb-spring -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <groupId>com.influxdb</groupId>
+            <artifactId>influxdb-spring</artifactId>
+            <version>7.2.0</version>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <groupId>com.influxdb</groupId>
+            <artifactId>influxdb-client-java</artifactId>
+            <version>7.2.0</version>
         </dependency>
-
-        <!-- Additional Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>3.2.5</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-jpa -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.storedobject.chart</groupId>
+            <artifactId>so-charts</artifactId>
+            <version>3.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.vaadin.addons.tatu</groupId>
+            <artifactId>colorpicker</artifactId>
+            <version>1.3.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <version>3.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
+            <version>3.3.2</version>
         </dependency>
-
-        <!-- Testing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <version>3.3.2</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-testbench-junit5</artifactId>
+            <version>${vaadin.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-testcontainers</artifactId>
-            <scope>test</scope>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.tngtech.archunit</groupId>
-            <artifactId>archunit-junit5</artifactId>
-            <version>${archunit.version}</version>
-            <scope>test</scope>
-        </dependency>
+
+
+
     </dependencies>
 
     <build>
-        <!-- Change the default goal to spring-boot:test-run to start the application with Testcontainers and PostgreSQL -->
         <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.44.4</version>
                 <configuration>
-                    <java>
-                        <toggleOffOn/>
-                        <eclipse>
-                            <version>4.35</version>
-                            <file>${project.basedir}/eclipse-formatter.xml</file>
-                        </eclipse>
-                    </java>
-                    <typescript>
-                        <includes>
-                            <include>src/main/frontend/**/*.ts</include>
-                            <include>src/main/frontend/**/*.tsx</include>
-                        </includes>
-                        <excludes>
-                            <exclude>src/main/frontend/generated/**</exclude>
-                        </excludes>
-                        <prettier>
-                            <prettierVersion>3.3.3</prettierVersion>
-                            <configFile>${project.basedir}/.prettierrc.json</configFile>
-                        </prettier>
-                    </typescript>
+                    <jvmArguments>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5373</jvmArguments>
+                    <wait>500</wait>
+                    <maxAttempts>240</maxAttempts>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
@@ -181,50 +187,19 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-wrapper-plugin</artifactId>
-                <version>3.3.2</version>
-            </plugin>
+
+
+
         </plugins>
     </build>
 
     <profiles>
         <profile>
-            <!--
-            To avoid problems, you should use the same database engine in development and in production. Docker,
-            Testcontainers and service connections make this easy to do. However, this requires you to install and
-            run Docker on your development machine.
-
-            This Maven profile makes it possible to start the skeleton quickly, using an H2 in-memory database and
-            does not require installing Docker. It does, however, still use Testcontainers and PostgreSQL for
-            integration tests.
-
-            If you have Docker installed and running on your machine, you can delete this profile. When you do this,
-            you should also change the default goal to `spring-boot:test-run` (at the beginning of the <build> section).
-             -->
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <id>h2-local-development</id>
-            <dependencies>
-                <dependency>
-                    <groupId>com.h2database</groupId>
-                    <artifactId>h2</artifactId>
-                    <scope>runtime</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.postgresql</groupId>
-                    <artifactId>postgresql</artifactId>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
+            <!-- Production mode is activated using -Pproduction -->
             <id>production</id>
             <dependencies>
+                <!-- Exclude development dependencies from production -->
                 <dependency>
-                    <!-- Exclude development dependencies from production -->
                     <groupId>com.vaadin</groupId>
                     <artifactId>vaadin-core</artifactId>
                     <exclusions>
@@ -253,10 +228,33 @@
                 </plugins>
             </build>
         </profile>
+
         <profile>
-            <id>integration-test</id>
+            <id>it</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>start-spring-boot</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-spring-boot</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- Runs the integration tests (*IT) after the server is started -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -276,6 +274,6 @@
                 </plugins>
             </build>
         </profile>
-    </profiles>
 
+    </profiles>
 </project>
