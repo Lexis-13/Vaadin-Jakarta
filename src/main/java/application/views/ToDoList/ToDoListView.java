@@ -2,7 +2,6 @@ package application.views.ToDoList;
 
 import application.views.BasicLayout;
 import application.views.components.CustomButton;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 
