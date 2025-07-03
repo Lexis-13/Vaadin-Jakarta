@@ -18,12 +18,12 @@ TODOLIST;6;Bugfixes
 TODOLIST;7;Kundenprojekte
 TODOLIST;8;Fortbildung
 
-TODO;1;Projektbericht schreiben;false;2025-07-10T17:00;HOCH;1;2,3
+TODO;1;Projektbericht schreiben;true;2025-07-10T17:00;HOCH;1;2,3
 TODO;2;Marketing-Meeting vorbereiten;true;2025-07-05T10:00;MITTEL;2;2,5
 TODO;3;Urlaub beantragen;false;2025-08-01T00:00;NIEDRIG;4;1,4
 TODO;4;Kundendaten aktualisieren;false;2025-07-07T12:00;MITTEL;3;2,7
 TODO;5;Sales Report Review;true;2025-07-03T09:00;HOCH;5;2,3,7
-TODO;6;Code-Review durchführen;false;2025-07-06T15:00;MITTEL;1;2,6
+TODO;6;Code-Review durchführen;false;2025-06-06T15:00;MITTEL;1;2,6
 TODO;7;Newsletter verfassen;false;2025-07-08T14:00;NIEDRIG;2;1
 TODO;8;Mitarbeitergespräch planen;false;2025-07-15T09:00;MITTEL;4;3
 TODO;9;Vertriebsschulung organisieren;false;2025-07-20T10:00;HOCH;5;2,3,7

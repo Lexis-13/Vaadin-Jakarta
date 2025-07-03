@@ -8,6 +8,7 @@
     --text-secondary: #888888;
     --warn-color: #e94e77;
     --border-color: #333333;
+    --light-blue: #74c0fc; /* Neu: hellblau für bessere Lesbarkeit */
 }
 
 body {
@@ -138,8 +139,7 @@ main {
     outline: none;
     font-size: 1rem;
     background-color: var(--background-color);
-    color: var(--text-primary);
-    border: 1px solid #444;
+    color: var(--light-blue); /* angepasst */
     margin-bottom: 1rem;
     box-sizing: border-box;
 }
@@ -155,7 +155,7 @@ main {
     font-weight: 700;
     margin-bottom: 0.75rem;
     font-size: 1.1rem;
-    color: var(--primary-color);
+    color: var(--light-blue); /* angepasst */
 }
 
 table {
@@ -269,4 +269,10 @@ tr.overdue td.title {
     font-size: 2rem;
     margin-bottom: 1rem;
     color: #333;
+}
+
+.donut-chart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

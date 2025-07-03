@@ -9,6 +9,7 @@ import com.vaadin.flow.component.orderedlayout.*;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import application.views.components.DonutChart;
 
 import java.util.List;
 import java.util.Map;
@@ -53,58 +54,83 @@ public class DashboardView extends BasicLayout {
         mainContent.getElement().getStyle().set("box-sizing", "border-box");
         mainContent.getElement().getStyle().set("overflow-y", "auto");
 
-        // Status Box
-        HorizontalLayout statusBox = new HorizontalLayout();
-        statusBox.addClassName("status-box");
-        statusBox.getStyle().set("background-color", "var(--tertiary-color)");
-        statusBox.getStyle().set("padding", "1rem");
-        statusBox.getStyle().set("border-radius", "6px");
-        statusBox.getStyle().set("margin-bottom", "1.5rem");
-        statusBox.setWidthFull();
-
-        long erledigtCount = dataLoader.getTodos().stream().filter(Todo::isDone).count();
-        long ueberfaelligCount = dataLoader.getTodos().stream()
-                .filter(todo -> !todo.isDone() && todo.getDueDate() != null && todo.getDueDate().isBefore(java.time.LocalDateTime.now()))
-                .count();
-
-        Paragraph erledigt = new Paragraph("🟢 Erledigt: " + erledigtCount);
-        erledigt.addClassName("erledigt");
-        erledigt.getStyle().set("font-weight", "600");
-        erledigt.getStyle().set("font-size", "1rem");
-
-        Paragraph ueberfaellig = new Paragraph("⚠️ Überfällig: " + ueberfaelligCount);
-        ueberfaellig.addClassName("ueberfaellig");
-        ueberfaellig.getStyle().set("font-weight", "600");
-        ueberfaellig.getStyle().set("font-size", "1rem");
-
-        statusBox.add(erledigt, ueberfaellig);
-
-        // Aufgabenliste Abschnitt
-        VerticalLayout taskSection = new VerticalLayout();
-        taskSection.addClassName("task-section");
-        taskSection.setWidthFull();
-
-        H3 taskTitle = new H3("Aufgabenlisten");
-        taskTitle.getElement().getStyle().set("color", "var(--primary-color)");
-
-        // Suchfeld
-        TextField searchInput = new TextField();
-        searchInput.setPlaceholder("Suche Aufgaben...");
-        searchInput.setWidthFull();
-        searchInput.getElement().setAttribute("type", "search");
-        searchInput.addClassName("search-bar");
-        searchInput.getElement().getStyle().set("margin-bottom", "1rem");
-        searchInput.getElement().getStyle().set("padding", "0.5rem 0.75rem");
-        searchInput.getElement().getStyle().set("border-radius", "4px");
-        searchInput.getElement().getStyle().set("border", "1px solid #444");
-        searchInput.getElement().getStyle().set("background-color", "var(--background-color)");
-        searchInput.getElement().getStyle().set("color", "var(--text-primary)");
-        searchInput.getElement().getStyle().set("box-sizing", "border-box");
-
-        taskSection.add(taskTitle, searchInput);
-
         if (!users.isEmpty()) {
             User firstUser = users.get(0);
+            List<Todo> userTodos = dataLoader.getTodosForUser(firstUser);
+
+            long erledigtCount = userTodos.stream().filter(Todo::isDone).count();
+            long ueberfaelligCount = userTodos.stream()
+                    .filter(todo -> !todo.isDone() && todo.getDueDate() != null && todo.getDueDate().isBefore(java.time.LocalDateTime.now()))
+                    .count();
+            long offenCount = userTodos.size() - erledigtCount - ueberfaelligCount;
+
+            // Statuszahlen vertikal untereinander
+            VerticalLayout statusNumbers = new VerticalLayout();
+            statusNumbers.addClassName("status-numbers");
+            statusNumbers.getStyle().set("padding", "1rem");
+            statusNumbers.getStyle().set("background-color", "var(--tertiary-color)");
+            statusNumbers.getStyle().set("border-radius", "6px");
+            statusNumbers.getStyle().set("min-width", "120px");
+            statusNumbers.getStyle().set("box-sizing", "border-box");
+            statusNumbers.getStyle().set("margin-right", "1rem");  // Kleiner Abstand rechts
+
+            Paragraph erledigt = new Paragraph("🟢 Erledigt: " + erledigtCount);
+            erledigt.addClassName("erledigt");
+            erledigt.getStyle().set("font-weight", "600");
+            erledigt.getStyle().set("font-size", "1.1rem");
+            erledigt.getStyle().set("margin", "0.15rem 0");
+
+            Paragraph ueberfaellig = new Paragraph("⚠️ Überfällig: " + ueberfaelligCount);
+            ueberfaellig.addClassName("ueberfaellig");
+            ueberfaellig.getStyle().set("font-weight", "600");
+            ueberfaellig.getStyle().set("font-size", "1.1rem");
+            ueberfaellig.getStyle().set("margin", "0.15rem 0");
+
+            Paragraph offen = new Paragraph("🔵 Offen: " + offenCount);
+            offen.addClassName("offen");
+            offen.getStyle().set("font-weight", "600");
+            offen.getStyle().set("font-size", "1.1rem");
+            offen.getStyle().set("margin", "0.15rem 0");
+
+            statusNumbers.add(erledigt, ueberfaellig, offen);
+
+            // DonutChart größer und ohne großen Rand
+            DonutChart donutChart = new DonutChart(erledigtCount, ueberfaelligCount, offenCount);
+            donutChart.getStyle().set("margin", "0"); // kein margin
+            donutChart.getStyle().set("max-width", "350px");
+            donutChart.getStyle().set("min-width", "350px");
+            donutChart.getStyle().set("height", "350px");
+
+            // Container für Statuszahlen und Chart nebeneinander, mit kleinem Abstand
+            HorizontalLayout statusAndChart = new HorizontalLayout(statusNumbers, donutChart);
+            statusAndChart.addClassName("status-and-chart");
+            statusAndChart.setWidthFull();
+            statusAndChart.setAlignItems(FlexComponent.Alignment.CENTER);
+            statusAndChart.setSpacing(false);  // kein großer Abstand
+            statusAndChart.getStyle().set("gap", "0.5rem"); // aber trotzdem etwas Lücke
+
+            // Aufgabenliste
+            VerticalLayout taskSection = new VerticalLayout();
+            taskSection.addClassName("task-section");
+            taskSection.setWidthFull();
+
+            H3 taskTitle = new H3("Aufgabenlisten");
+            taskTitle.getElement().getStyle().set("color", "var(--primary-color)");
+
+            TextField searchInput = new TextField();
+            searchInput.setPlaceholder("Suche Aufgaben...");
+            searchInput.setWidthFull();
+            searchInput.getElement().setAttribute("type", "search");
+            searchInput.addClassName("search-bar");
+            searchInput.getElement().getStyle().set("margin-bottom", "1rem");
+            searchInput.getElement().getStyle().set("padding", "0.5rem 0.75rem");
+            searchInput.getElement().getStyle().set("border-radius", "4px");
+            searchInput.getElement().getStyle().set("border", "1px solid #444");
+            searchInput.getElement().getStyle().set("background-color", "var(--background-color)");
+            searchInput.getElement().getStyle().set("box-sizing", "border-box");
+
+            taskSection.add(taskTitle, searchInput);
+
             Map<TodoList, List<Todo>> todosByList = dataLoader.getTodosGroupedByListForUser(firstUser);
 
             for (Map.Entry<TodoList, List<Todo>> entry : todosByList.entrySet()) {
@@ -119,88 +145,80 @@ public class DashboardView extends BasicLayout {
                 taskSection.add(noteGroup);
             }
 
+            mainContent.add(statusAndChart, taskSection);
+            mainContent.expand(taskSection);
+
+            // Topbar
+            HorizontalLayout topbar = new HorizontalLayout();
+            topbar.addClassName("topbar");
+            topbar.setWidthFull();
+            topbar.setHeight("60px");
+            topbar.getStyle().set("background-color", "var(--tertiary-color)");
+            topbar.getStyle().set("border-bottom", "1px solid #222");
+            topbar.setPadding(true);
+            topbar.setAlignItems(FlexComponent.Alignment.CENTER);
+            topbar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+            topbar.getStyle().set("color", "var(--text-primary)");
+            topbar.getStyle().set("user-select", "none");
+
+            String username = firstUser.getFirstName() + " " + firstUser.getLastName();
+
+            Span userInfo = new Span();
+            userInfo.addClassName("user-info");
+            userInfo.getStyle().set("font-weight", "600");
+            userInfo.getStyle().set("display", "flex");
+            userInfo.getStyle().set("align-items", "center");
+            userInfo.getStyle().set("gap", "0.5rem");
+            userInfo.setText("Hallo, " + username);
+
+            Icon userIcon = VaadinIcon.USER.create();
+            userIcon.addClassName("user-icon");
+            userIcon.getStyle().set("width", "32px");
+            userIcon.getStyle().set("height", "32px");
+            userIcon.getStyle().set("fill", "var(--primary-color)");
+
+            userInfo.getElement().insertChild(0, userIcon.getElement());
+            topbar.add(userInfo);
+
+            // Footer
+            Footer footer = new Footer();
+            footer.addClassName("footer");
+            footer.getStyle().set("background-color", "var(--tertiary-color)");
+            footer.getStyle().set("padding", "1rem");
+            footer.getStyle().set("text-align", "center");
+            footer.getStyle().set("font-size", "0.9rem");
+            footer.getStyle().set("color", "var(--text-secondary)");
+            footer.getStyle().set("border-top", "1px solid #222");
+            footer.getStyle().set("user-select", "none");
+
+            Anchor impressum = new Anchor("#", "Impressum");
+            Anchor datenschutz = new Anchor("#", "Datenschutz");
+            impressum.getStyle().set("color", "var(--primary-color)");
+            datenschutz.getStyle().set("color", "var(--primary-color)");
+            impressum.getStyle().set("margin", "0 0.5rem");
+            datenschutz.getStyle().set("margin", "0 0.5rem");
+
+            footer.add(new Text("© 2025 Dein Dashboard • "), impressum, new Text(" • "), datenschutz);
+
+            VerticalLayout page = new VerticalLayout();
+            page.setSizeFull();
+            page.setPadding(false);
+            page.setSpacing(false);
+            page.add(topbar, container, footer);
+            page.expand(container);
+
+            container.add(sidebar, mainContent);
+
+            setContent(page);
+            getElement().getStyle().set("height", "100vh");
+
         } else {
-            taskSection.add(new Paragraph("Keine Benutzer gefunden."));
+            mainContent.add(new Paragraph("Keine Benutzer gefunden."));
+            container.add(sidebar, mainContent);
+
+            setContent(container);
+            getElement().getStyle().set("height", "100vh");
         }
-
-        // Chart Container
-        Div chartContainer = new Div();
-        chartContainer.setId("chart-container");
-        chartContainer.setText("Hier kommt das Diagramm rein.");
-        chartContainer.getStyle().set("max-width", "600px");
-        chartContainer.getStyle().set("margin", "2rem auto");
-        chartContainer.getStyle().set("background-color", "var(--tertiary-color)");
-        chartContainer.getStyle().set("padding", "1rem");
-        chartContainer.getStyle().set("border-radius", "8px");
-        chartContainer.getStyle().set("box-sizing", "border-box");
-        chartContainer.setWidthFull();
-
-        mainContent.add(statusBox, taskSection, chartContainer);
-        mainContent.expand(taskSection);
-
-        // Topbar
-        HorizontalLayout topbar = new HorizontalLayout();
-        topbar.addClassName("topbar");
-        topbar.setWidthFull();
-        topbar.setHeight("60px");
-        topbar.getStyle().set("background-color", "var(--tertiary-color)");
-        topbar.getStyle().set("border-bottom", "1px solid #222");
-        topbar.setPadding(true);
-        topbar.setAlignItems(FlexComponent.Alignment.CENTER);
-        topbar.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-        topbar.getStyle().set("color", "var(--text-primary)");
-        topbar.getStyle().set("user-select", "none");
-
-        String username = users.isEmpty() ? "Gast" : users.get(0).getFirstName() + " " + users.get(0).getLastName();
-
-        Span userInfo = new Span();
-        userInfo.addClassName("user-info");
-        userInfo.getStyle().set("font-weight", "600");
-        userInfo.getStyle().set("display", "flex");
-        userInfo.getStyle().set("align-items", "center");
-        userInfo.getStyle().set("gap", "0.5rem");
-        userInfo.setText("Hallo, " + username);
-
-        Icon userIcon = VaadinIcon.USER.create();
-        userIcon.addClassName("user-icon");
-        userIcon.getStyle().set("width", "32px");
-        userIcon.getStyle().set("height", "32px");
-        userIcon.getStyle().set("fill", "var(--primary-color)");
-
-        userInfo.getElement().insertChild(0, userIcon.getElement());
-        topbar.add(userInfo);
-
-        // Footer
-        Footer footer = new Footer();
-        footer.addClassName("footer");
-        footer.getStyle().set("background-color", "var(--tertiary-color)");
-        footer.getStyle().set("padding", "1rem");
-        footer.getStyle().set("text-align", "center");
-        footer.getStyle().set("font-size", "0.9rem");
-        footer.getStyle().set("color", "var(--text-secondary)");
-        footer.getStyle().set("border-top", "1px solid #222");
-        footer.getStyle().set("user-select", "none");
-
-        Anchor impressum = new Anchor("#", "Impressum");
-        Anchor datenschutz = new Anchor("#", "Datenschutz");
-        impressum.getStyle().set("color", "var(--primary-color)");
-        datenschutz.getStyle().set("color", "var(--primary-color)");
-        impressum.getStyle().set("margin", "0 0.5rem");
-        datenschutz.getStyle().set("margin", "0 0.5rem");
-
-        footer.add(new Text("© 2025 Dein Dashboard • "), impressum, new Text(" • "), datenschutz);
-
-        VerticalLayout page = new VerticalLayout();
-        page.setSizeFull();
-        page.setPadding(false);
-        page.setSpacing(false);
-        page.add(topbar, container, footer);
-        page.expand(container);
-
-        container.add(sidebar, mainContent);
-
-        setContent(page);
-        getElement().getStyle().set("height", "100vh");
     }
 
     private Anchor createSidebarLink(String text, boolean active) {
