@@ -1,0 +1,40 @@
+USER;1;jdoe;hash123;jdoe@example.com;John;Doe;ExampleCorp;Development
+USER;2;asmith;hash456;asmith@example.com;Anna;Smith;ExampleCorp;Marketing
+USER;3;bwilliams;hash789;bwilliams@example.com;Bob;Williams;OtherCorp;
+USER;4;mlewis;hashabc;mlewis@example.com;Mary;Lewis;ExampleCorp;HR
+USER;5;tjohnson;hashefg;tjohnson@example.com;Tom;Johnson;OtherCorp;Sales
+USER;6;cking;hashxyz;cking@example.com;Chris;King;NewTech;R&D
+USER;7;lwhite;hashlmn;lwhite@example.com;Laura;White;NewTech;Support
+USER;8;dgreen;hashdef;dgreen@example.com;David;Green;NewTech;
+USER;9;amartin;hashijk;amartin@example.com;Amy;Martin;BigCorp;Finance
+USER;10;jblack;hashopq;jblack@example.com;Jack;Black;BigCorp;Legal
+
+TODOLIST;1;Persönlich
+TODOLIST;2;Arbeit
+TODOLIST;3;Wichtig
+TODOLIST;4;Langfristig
+TODOLIST;5;Meeting-Vorbereitung
+TODOLIST;6;Bugfixes
+TODOLIST;7;Kundenprojekte
+TODOLIST;8;Fortbildung
+
+TODO;1;Projektbericht schreiben;false;2025-07-10T17:00;HOCH;1;2,3
+TODO;2;Marketing-Meeting vorbereiten;true;2025-07-05T10:00;MITTEL;2;2,5
+TODO;3;Urlaub beantragen;false;2025-08-01T00:00;NIEDRIG;4;1,4
+TODO;4;Kundendaten aktualisieren;false;2025-07-07T12:00;MITTEL;3;2,7
+TODO;5;Sales Report Review;true;2025-07-03T09:00;HOCH;5;2,3,7
+TODO;6;Code-Review durchführen;false;2025-07-06T15:00;MITTEL;1;2,6
+TODO;7;Newsletter verfassen;false;2025-07-08T14:00;NIEDRIG;2;1
+TODO;8;Mitarbeitergespräch planen;false;2025-07-15T09:00;MITTEL;4;3
+TODO;9;Vertriebsschulung organisieren;false;2025-07-20T10:00;HOCH;5;2,3,7
+TODO;10;Serverwartung;false;2025-07-12T22:00;HOCH;1;2,6
+TODO;11;Support-Ticket #423 lösen;true;2025-07-02T11:00;HOCH;7;6,7
+TODO;12;Budgetplanung 2026;false;2025-07-25T16:00;MITTEL;9;8
+TODO;13;Rechtsdokument prüfen;false;2025-07-18T13:00;HOCH;10;5
+TODO;14;Kundenfeedback auswerten;false;2025-07-09T11:00;MITTEL;8;7
+TODO;15;Fortbildung Java;false;2025-07-30T09:00;NIEDRIG;6;8
+TODO;16;Neue Features diskutieren;false;2025-07-22T14:00;MITTEL;6;2,8
+TODO;17;Bugfix #112;false;2025-07-05T18:00;HOCH;7;6
+TODO;18;Abteilungsmeeting vorbereiten;true;2025-07-04T09:00;MITTEL;4;5
+TODO;19;Projekt Kickoff;false;2025-07-10T08:00;HOCH;1;2,3
+TODO;20;Vertragsverlängerung prüfen;false;2025-07-19T17:00;MITTEL;10;5

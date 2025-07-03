@@ -1,25 +1,27 @@
 package application.views.ToDoList;
 
-import application.views.ToDoList.NoteGroup;
-import application.views.ToDoList.NoteGroup.Task;
-import java.util.List;
-import java.util.Arrays;
-
+import application.database.*;
+import application.views.BasicLayout;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.icon.*;
 import com.vaadin.flow.component.orderedlayout.*;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import application.views.BasicLayout;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Route("")
 @PageTitle("Dashboard")
 public class DashboardView extends BasicLayout {
 
     public DashboardView() {
-        // Gesamtes Container-Layout mit Sidebar und Main Content
+        DataLoader dataLoader = new DataLoader();
+        List<User> users = dataLoader.getUsers();
+
         HorizontalLayout container = new HorizontalLayout();
         container.addClassName("container");
         container.setSizeFull();
@@ -42,7 +44,7 @@ public class DashboardView extends BasicLayout {
 
         sidebar.add(sidebarTitle, nav);
 
-        // Main Content Bereich
+        // Main Content
         VerticalLayout mainContent = new VerticalLayout();
         mainContent.setSizeFull();
         mainContent.addClassName("main-content");
@@ -60,12 +62,17 @@ public class DashboardView extends BasicLayout {
         statusBox.getStyle().set("margin-bottom", "1.5rem");
         statusBox.setWidthFull();
 
-        Paragraph erledigt = new Paragraph("🟢 Erledigt: 3");
+        long erledigtCount = dataLoader.getTodos().stream().filter(Todo::isDone).count();
+        long ueberfaelligCount = dataLoader.getTodos().stream()
+                .filter(todo -> !todo.isDone() && todo.getDueDate() != null && todo.getDueDate().isBefore(java.time.LocalDateTime.now()))
+                .count();
+
+        Paragraph erledigt = new Paragraph("🟢 Erledigt: " + erledigtCount);
         erledigt.addClassName("erledigt");
         erledigt.getStyle().set("font-weight", "600");
         erledigt.getStyle().set("font-size", "1rem");
 
-        Paragraph ueberfaellig = new Paragraph("⚠️ Überfällig: 2");
+        Paragraph ueberfaellig = new Paragraph("⚠️ Überfällig: " + ueberfaelligCount);
         ueberfaellig.addClassName("ueberfaellig");
         ueberfaellig.getStyle().set("font-weight", "600");
         ueberfaellig.getStyle().set("font-size", "1rem");
@@ -77,11 +84,11 @@ public class DashboardView extends BasicLayout {
         taskSection.addClassName("task-section");
         taskSection.setWidthFull();
 
-        H3 taskTitle = new H3("Aufgabenliste");
+        H3 taskTitle = new H3("Aufgabenlisten");
         taskTitle.getElement().getStyle().set("color", "var(--primary-color)");
 
         // Suchfeld
-        Input searchInput = new Input();
+        TextField searchInput = new TextField();
         searchInput.setPlaceholder("Suche Aufgaben...");
         searchInput.setWidthFull();
         searchInput.getElement().setAttribute("type", "search");
@@ -94,24 +101,29 @@ public class DashboardView extends BasicLayout {
         searchInput.getElement().getStyle().set("color", "var(--text-primary)");
         searchInput.getElement().getStyle().set("box-sizing", "border-box");
 
-        // Persönliche Aufgaben
-        List<Task> personalTasks = Arrays.asList(
-                new Task(false, "Einkaufen gehen", "mittel"),
-                new Task(true, "Geburtstagskarte schreiben", "niedrig"),
-                new Task(false, "Rechnung bezahlen", "hoch", true)
-        );
-
-        // Arbeit Aufgaben
-        List<Task> workTasks = Arrays.asList(
-                new Task(false, "Meeting vorbereiten", "hoch"),
-                new Task(true, "Bericht abschicken", "mittel")
-        );
-
         taskSection.add(taskTitle, searchInput);
-        taskSection.add(createNoteGroup("📌 Persönlich", personalTasks));
-        taskSection.add(createNoteGroup("💼 Arbeit", workTasks));
 
-        // Chart Container (Platzhalter, hier kannst du später den Chart einfügen)
+        if (!users.isEmpty()) {
+            User firstUser = users.get(0);
+            Map<TodoList, List<Todo>> todosByList = dataLoader.getTodosGroupedByListForUser(firstUser);
+
+            for (Map.Entry<TodoList, List<Todo>> entry : todosByList.entrySet()) {
+                TodoList list = entry.getKey();
+                List<Todo> todos = entry.getValue();
+                List<NoteGroup.Task> tasks = convertTodosToNoteTasks(todos);
+
+                NoteGroup noteGroup = new NoteGroup();
+                noteGroup.setTitle("📋 " + list.getName());
+                noteGroup.setTasks(tasks);
+
+                taskSection.add(noteGroup);
+            }
+
+        } else {
+            taskSection.add(new Paragraph("Keine Benutzer gefunden."));
+        }
+
+        // Chart Container
         Div chartContainer = new Div();
         chartContainer.setId("chart-container");
         chartContainer.setText("Hier kommt das Diagramm rein.");
@@ -123,11 +135,10 @@ public class DashboardView extends BasicLayout {
         chartContainer.getStyle().set("box-sizing", "border-box");
         chartContainer.setWidthFull();
 
-        // Zusammensetzen MainContent
         mainContent.add(statusBox, taskSection, chartContainer);
         mainContent.expand(taskSection);
 
-        // Topbar mit Benutzerinfo (oben rechts)
+        // Topbar
         HorizontalLayout topbar = new HorizontalLayout();
         topbar.addClassName("topbar");
         topbar.setWidthFull();
@@ -140,13 +151,15 @@ public class DashboardView extends BasicLayout {
         topbar.getStyle().set("color", "var(--text-primary)");
         topbar.getStyle().set("user-select", "none");
 
+        String username = users.isEmpty() ? "Gast" : users.get(0).getFirstName() + " " + users.get(0).getLastName();
+
         Span userInfo = new Span();
         userInfo.addClassName("user-info");
         userInfo.getStyle().set("font-weight", "600");
         userInfo.getStyle().set("display", "flex");
         userInfo.getStyle().set("align-items", "center");
         userInfo.getStyle().set("gap", "0.5rem");
-        userInfo.setText("Hallo, Max Mustermann");
+        userInfo.setText("Hallo, " + username);
 
         Icon userIcon = VaadinIcon.USER.create();
         userIcon.addClassName("user-icon");
@@ -177,7 +190,6 @@ public class DashboardView extends BasicLayout {
 
         footer.add(new Text("© 2025 Dein Dashboard • "), impressum, new Text(" • "), datenschutz);
 
-        // Seite zusammensetzen: Topbar + Container + Footer
         VerticalLayout page = new VerticalLayout();
         page.setSizeFull();
         page.setPadding(false);
@@ -200,10 +212,13 @@ public class DashboardView extends BasicLayout {
         return link;
     }
 
-    private NoteGroup createNoteGroup(String title, List<Task> tasks) {
-        NoteGroup group = new NoteGroup();
-        group.setTitle(title);
-        group.setTasks(tasks);
-        return group;
+    private List<NoteGroup.Task> convertTodosToNoteTasks(List<Todo> todos) {
+        return todos.stream().map(todo -> {
+            boolean done = todo.isDone();
+            String description = todo.getDescription();
+            String priority = todo.getPriority() != null ? todo.getPriority().name().toLowerCase() : "niedrig";
+            boolean overdue = !done && todo.getDueDate() != null && todo.getDueDate().isBefore(java.time.LocalDateTime.now());
+            return new NoteGroup.Task(done, description, priority, overdue);
+        }).collect(Collectors.toList());
     }
 }
