@@ -34,7 +34,6 @@ public class BasicLayout extends AppLayout {
         header.setAlignItems(FlexComponent.Alignment.CENTER);
         header.setSpacing(false);
         addToNavbar(header);
-
     }
 
 

@@ -64,7 +64,7 @@ public class NoteGroup extends VerticalLayout {
                 overdue.getStyle().set("margin-left", "0.5rem");
             }
 
-            taskRow.add(doneCheckbox, description, priority, overdue);
+            taskRow.add(doneCheckbox, description, overdue, priority);
 
             taskList.add(taskRow);
         }

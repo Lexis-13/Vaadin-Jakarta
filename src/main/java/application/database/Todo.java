@@ -2,8 +2,6 @@ package application.database;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -23,17 +21,15 @@ public class Todo {
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
+    // Ein Todo gehört genau zu einer User (Besitzer)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "todo_todo_list",
-            joinColumns = @JoinColumn(name = "todo_id"),
-            inverseJoinColumns = @JoinColumn(name = "list_id")
-    )
-    private List<TodoList> lists = new ArrayList<>();
+    // Ein Todo gehört zu genau einer TodoList
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "todo_list_id")
+    private TodoList todoList;
 
     // Getter & Setter
     public Long getId() { return id; }
@@ -54,10 +50,10 @@ public class Todo {
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 
-    public List<TodoList> getLists() { return lists; }
-    public void setLists(List<TodoList> lists) { this.lists = lists; }
+    public TodoList getTodoList() { return todoList; }
+    public void setTodoList(TodoList todoList) { this.todoList = todoList; }
 
-    // equals & hashCode
+    // equals & hashCode: Identität basiert nur auf ID
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -2,36 +2,44 @@ package application.views.ToDoList;
 
 import application.database.*;
 import application.views.BasicLayout;
+import application.views.components.DonutChart;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.*;
-import com.vaadin.flow.component.icon.*;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.*;
+import com.vaadin.flow.component.tabs.*;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import application.views.components.DonutChart;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Route("")
-@PageTitle("Dashboard")
-public class DashboardView extends BasicLayout {
+@Route("detail")
+@PageTitle("Aufgabenübersicht")
+public class TodoDetailView extends BasicLayout {
 
-    public DashboardView() {
-        DataLoader dataLoader = new DataLoader();
+    private DataLoader dataLoader;
+    private User currentUser;
+    private Map<TodoList, List<Todo>> todosByList;
+
+    public TodoDetailView() {
+        dataLoader = new DataLoader();
         List<User> users = dataLoader.getUsers();
+
+        currentUser = users.get(0);
+        todosByList = dataLoader.getTodosGroupedByListForUser(currentUser);
 
         HorizontalLayout container = new HorizontalLayout();
         container.addClassName("container");
         container.setSizeFull();
 
-        // Sidebar
         VerticalLayout sidebar = createSidebar();
 
-        // Main Content
         VerticalLayout mainContent = new VerticalLayout();
         mainContent.setSizeFull();
         mainContent.addClassName("main-content");
@@ -41,53 +49,106 @@ public class DashboardView extends BasicLayout {
                 .set("box-sizing", "border-box")
                 .set("overflow-y", "auto");
 
-        if (!users.isEmpty()) {
-            User firstUser = users.get(0);
+        // Tabs für TodoLists
+        Tabs tabs = new Tabs();
+        tabs.setWidthFull();
+        tabs.addClassName("todo-tabs");
 
-            List<Todo> userTodos = dataLoader.getTodosForUser(firstUser);
+        // Content Panels für jede Liste
+        Div tabsContent = new Div();
+        tabsContent.setWidthFull();
 
-            long erledigtCount = userTodos.stream().filter(Todo::isDone).count();
-            long ueberfaelligCount = userTodos.stream()
-                    .filter(todo -> !todo.isDone() && todo.getDueDate() != null && todo.getDueDate().isBefore(LocalDateTime.now()))
-                    .count();
-            long offenCount = userTodos.size() - erledigtCount - ueberfaelligCount;
+        for (Map.Entry<TodoList, List<Todo>> entry : todosByList.entrySet()) {
+            TodoList todoList = entry.getKey();
+            List<Todo> todos = entry.getValue();
 
-            VerticalLayout statusNumbers = createStatusNumbers(erledigtCount, ueberfaelligCount, offenCount);
-            DonutChart donutChart = createDonutChart(erledigtCount, ueberfaelligCount, offenCount);
+            Tab tab = new Tab(todoList.getName());
+            tabs.add(tab);
 
-            HorizontalLayout statusAndChart = new HorizontalLayout(statusNumbers, donutChart);
-            statusAndChart.addClassName("status-and-chart");
-            statusAndChart.setWidthFull();
-            statusAndChart.setAlignItems(FlexComponent.Alignment.CENTER);
-            statusAndChart.setSpacing(false);
-            statusAndChart.getStyle().set("gap", "0.5rem");
-
-            VerticalLayout taskSection = createTaskSection(dataLoader, firstUser);
-
-            mainContent.add(statusAndChart, taskSection);
-            mainContent.expand(taskSection);
-
-            HorizontalLayout topbar = createTopbar(firstUser);
-
-            Footer footer = createFooter();
-
-            VerticalLayout page = new VerticalLayout(topbar, container, footer);
-            page.setSizeFull();
-            page.setPadding(false);
-            page.setSpacing(false);
-            page.expand(container);
-
-            container.add(sidebar, mainContent);
-
-            setContent(page);
-            getElement().getStyle().set("height", "100vh");
-        } else {
-            mainContent.add(new Paragraph("Keine Benutzer gefunden."));
-            container.add(sidebar, mainContent);
-
-            setContent(container);
-            getElement().getStyle().set("height", "100vh");
+            VerticalLayout taskLayout = createEditableTaskList(todos);
+            taskLayout.setVisible(false);
+            taskLayout.addClassName("tab-content");
+            tabsContent.add(taskLayout);
         }
+
+        if (!(tabs.getComponentCount() == (0))) {
+            // Erster Tab und Content sichtbar machen
+            tabs.setSelectedIndex(0);
+            tabsContent.getChildren().skip(0).findFirst().ifPresent(c -> c.setVisible(true));
+        }
+
+        // Tab-Auswahl-Listener: Sichtbarkeit umschalten
+        tabs.addSelectedChangeListener(event -> {
+            int selected = tabs.getSelectedIndex();
+            int i = 0;
+            for (var child : tabsContent.getChildren().toList()) {
+                child.setVisible(i == selected);
+                i++;
+            }
+        });
+
+        mainContent.add(tabs, tabsContent);
+        mainContent.expand(tabsContent);
+
+        container.add(sidebar, mainContent);
+
+        HorizontalLayout topbar = createTopbar(currentUser);
+        Footer footer = createFooter();
+
+        VerticalLayout page = new VerticalLayout(topbar, container, footer);
+        page.setSizeFull();
+        page.setPadding(false);
+        page.setSpacing(false);
+        page.expand(container);
+
+        setContent(page);
+        getElement().getStyle().set("height", "100vh");
+    }
+
+    private VerticalLayout createEditableTaskList(List<Todo> todos) {
+        VerticalLayout taskList = new VerticalLayout();
+        taskList.setSpacing(false);
+        taskList.setPadding(false);
+        taskList.setWidthFull();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Todo todo : todos) {
+            HorizontalLayout row = new HorizontalLayout();
+            row.setWidthFull();
+            row.setAlignItems(FlexComponent.Alignment.CENTER);
+            row.getStyle().set("padding", "0.3rem 0.5rem");
+            row.getStyle().set("border-bottom", "1px solid var(--border-color)");
+
+            Checkbox checkbox = new Checkbox(todo.isDone());
+            checkbox.addValueChangeListener(e -> todo.setDone(e.getValue()));
+
+            Span description = new Span(todo.getDescription());
+            description.getStyle().set("flex-grow", "1");
+            description.getStyle().set("font-weight", todo.isDone() ? "normal" : "600");
+            description.getStyle().set("text-decoration", todo.isDone() ? "line-through" : "none");
+            description.getStyle().set("color", todo.isDone() ? "var(--text-secondary)" : "var(--text-primary)");
+
+            // Optional: Du kannst hier ein TextField nutzen, um Beschreibung editierbar zu machen, oder per Dialog etc.
+
+            Span priority = new Span();
+            priority.getElement().setProperty("innerHTML", getPriorityIcon(todo.getPriority().name()));
+            priority.getStyle().set("min-width", "60px");
+            priority.getStyle().set("text-align", "center");
+
+            Span overdue = new Span();
+            if (!todo.isDone() && todo.getDueDate() != null && todo.getDueDate().isBefore(now)) {
+                overdue.setText("⚠️");
+                overdue.getElement().setProperty("title", "Überfällig");
+                overdue.getStyle().set("color", "var(--error-color)");
+                overdue.getStyle().set("margin-left", "0.5rem");
+            }
+
+            row.add(checkbox, description, overdue, priority);
+            taskList.add(row);
+        }
+
+        return taskList;
     }
 
     private VerticalLayout createSidebar() {
@@ -101,8 +162,8 @@ public class DashboardView extends BasicLayout {
         sidebarTitle.getElement().getStyle().set("color", "var(--primary-color)");
 
         Nav nav = new Nav();
-        nav.add(createSidebarLink("Übersicht", true));
-        nav.add(createSidebarLink("Aufgaben", false));
+        nav.add(createSidebarLink("Übersicht", false));
+        nav.add(createSidebarLink("Aufgaben", true));
         nav.add(createSidebarLink("Kalender", false));
         nav.add(createSidebarLink("Einstellungen", false));
 
@@ -110,7 +171,7 @@ public class DashboardView extends BasicLayout {
         return sidebar;
     }
 
-    private VerticalLayout createStatusNumbers(long erledigtCount, long ueberfaelligCount, long offenCount) {
+    private HorizontalLayout createStatusNumbers(long erledigtCount, long ueberfaelligCount, long offenCount) {
         VerticalLayout statusNumbers = new VerticalLayout();
         statusNumbers.addClassName("status-numbers");
         statusNumbers.getStyle()
@@ -125,7 +186,10 @@ public class DashboardView extends BasicLayout {
         statusNumbers.add(createStatusParagraph("⚠️ Überfällig: " + ueberfaelligCount, "ueberfaellig"));
         statusNumbers.add(createStatusParagraph("🔵 Offen: " + offenCount, "offen"));
 
-        return statusNumbers;
+        HorizontalLayout container = new HorizontalLayout(statusNumbers);
+        container.setPadding(false);
+        container.setMargin(false);
+        return container;
     }
 
     private Paragraph createStatusParagraph(String text, String styleClass) {
@@ -146,46 +210,6 @@ public class DashboardView extends BasicLayout {
                 .set("min-width", "350px")
                 .set("height", "350px");
         return donutChart;
-    }
-
-    private VerticalLayout createTaskSection(DataLoader dataLoader, User user) {
-        VerticalLayout taskSection = new VerticalLayout();
-        taskSection.addClassName("task-section");
-        taskSection.setWidthFull();
-
-        H3 taskTitle = new H3("Aufgabenlisten");
-        taskTitle.getElement().getStyle().set("color", "var(--primary-color)");
-
-        TextField searchInput = new TextField();
-        searchInput.setPlaceholder("Suche Aufgaben...");
-        searchInput.setWidthFull();
-        searchInput.getElement().setAttribute("type", "search");
-        searchInput.addClassName("search-bar");
-        searchInput.getElement().getStyle()
-                .set("margin-bottom", "1rem")
-                .set("padding", "0.5rem 0.75rem")
-                .set("border-radius", "4px")
-                .set("border", "1px solid #444")
-                .set("background-color", "var(--background-color)")
-                .set("box-sizing", "border-box");
-
-        taskSection.add(taskTitle, searchInput);
-
-        Map<TodoList, List<Todo>> todosByList = dataLoader.getTodosGroupedByListForUser(user);
-
-        for (Map.Entry<TodoList, List<Todo>> entry : todosByList.entrySet()) {
-            TodoList list = entry.getKey();
-            List<Todo> todos = entry.getValue();
-
-            List<NoteGroup.Task> tasks = convertTodosToNoteTasks(todos);
-            NoteGroup noteGroup = new NoteGroup();
-            noteGroup.setTitle("📋 " + list.getName());
-            noteGroup.setTasks(tasks);
-
-            taskSection.add(noteGroup);
-        }
-
-        return taskSection;
     }
 
     private HorizontalLayout createTopbar(User user) {
@@ -266,16 +290,16 @@ public class DashboardView extends BasicLayout {
         return link;
     }
 
-    private List<NoteGroup.Task> convertTodosToNoteTasks(List<Todo> todos) {
-        LocalDateTime now = LocalDateTime.now();
-        return todos.stream()
-                .map(todo -> {
-                    boolean done = todo.isDone();
-                    String description = todo.getDescription();
-                    String priority = todo.getPriority() != null ? todo.getPriority().name().toLowerCase() : "niedrig";
-                    boolean overdue = !done && todo.getDueDate() != null && todo.getDueDate().isBefore(now);
-                    return new NoteGroup.Task(done, description, priority, overdue);
-                })
-                .collect(Collectors.toList());
+    private String getPriorityIcon(String priority) {
+        switch (priority.toLowerCase()) {
+            case "hoch":
+                return "🔴 Hoch";
+            case "mittel":
+                return "🟠 Mittel";
+            case "niedrig":
+                return "🟢 Niedrig";
+            default:
+                return "";
+        }
     }
 }
