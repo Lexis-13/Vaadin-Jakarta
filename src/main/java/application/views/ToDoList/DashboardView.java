@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Route("")
+@Route("Dashboard")
 @PageTitle("Dashboard")
 public class DashboardView extends BasicLayout {
 

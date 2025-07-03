@@ -5,6 +5,7 @@
   "dependencies": {
     "@polymer/polymer": "3.5.1",
     "@vaadin/bundles": "24.4.5",
+    "@vaadin/charts": "24.4.5",
     "@vaadin/common-frontend": "0.0.19",
     "@vaadin/polymer-legacy-adapter": "24.4.5",
     "@vaadin/react-components": "24.4.5",
@@ -46,6 +47,7 @@
     "dependencies": {
       "@polymer/polymer": "3.5.1",
       "@vaadin/bundles": "24.4.5",
+      "@vaadin/charts": "24.4.5",
       "@vaadin/common-frontend": "0.0.19",
       "@vaadin/polymer-legacy-adapter": "24.4.5",
       "@vaadin/react-components": "24.4.5",
@@ -83,7 +85,7 @@
       "workbox-core": "7.1.0",
       "workbox-precaching": "7.1.0"
     },
-    "hash": "90ab3d1b7187343174e9511d5943a75f1f4c741d8dfabdec524a97bbd55cc7e7"
+    "hash": "cb8bfea640eb0f7eda7de12a40a1d1187f349ad584514367f07fc09953188492"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",
@@ -103,6 +105,7 @@
     "echarts": "$echarts",
     "@vaadin/vaadin-themable-mixin": "$@vaadin/vaadin-themable-mixin",
     "@vaadin/vaadin-lumo-styles": "$@vaadin/vaadin-lumo-styles",
-    "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles"
+    "@vaadin/vaadin-material-styles": "$@vaadin/vaadin-material-styles",
+    "@vaadin/charts": "$@vaadin/charts"
   }
 }
