@@ -39,7 +39,9 @@ public class BasicLayout extends AppLayout {
                 .set("margin", "0");
 
         Button mode = new Button("Mode");
-        Button logout = new Button("Logout");
+        Button logout = new Button("Logout", e ->{
+            getUI().ifPresent(ui -> ui.getPage().setLocation("/logout"));
+        });
         HorizontalLayout rightControls = new HorizontalLayout(mode, logout);
         rightControls.setSpacing(true);
         rightControls.getStyle().set("margin-left", "auto").set("padding-right", "10px");
