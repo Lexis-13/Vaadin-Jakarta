@@ -162,7 +162,12 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-
+        <!--ToggleButton -->
+        <dependency>
+            <groupId>com.gmail.umit</groupId>
+            <artifactId>papertogglebuttonv14</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
 
     </dependencies>
