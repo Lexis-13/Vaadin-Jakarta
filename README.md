@@ -2,8 +2,10 @@
 - First clone the project
 - Then run "npm install" in a shell
 
-## Wiki
+## Documentations
 - Vaadin Dokumentation: https://vaadin.com/docs/latest
-- Java Client für Influx DB: https://github.com/influxdata/influxdb-client-java
-- SO Charts Beispiele: https://vaadin.com/directory/component/so-charts
-
+- Java Client for Influx DB: https://github.com/influxdata/influxdb-client-java
+- SO Charts examples: https://vaadin.com/directory/component/so-charts
+- CSS UI-Elements: https://uiverse.io/elements
+- Vaadin-API: https://storedobject.com/api/index.html
+  
