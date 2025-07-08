@@ -8,6 +8,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 
 import com.vaadin.flow.component.html.Span;
@@ -16,6 +17,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.internal.nodefeature.ElementChildrenList;
 import com.vaadin.flow.router.RouterLink;
 
 
@@ -29,8 +31,24 @@ public class BasicLayout extends AppLayout {
     public BasicLayout(){
         this.addToDrawer(createNav());
         createHeader();
-        createFooter();
         setDrawerOpened(false);
+
+        VerticalLayout wrapper = new VerticalLayout();
+        wrapper.setSizeFull();
+        wrapper.setSpacing(false);
+        wrapper.setPadding(false);
+        wrapper.setMargin(false);
+
+        Div contentWrapper = new Div();
+        contentWrapper.setSizeFull();
+        contentWrapper.getElement().getStyle().set("flex-grow", "1");
+
+        Component footer = createFooter();
+
+        wrapper.add(contentWrapper, footer);
+        wrapper.setFlexGrow(1, contentWrapper);
+
+        setContent(wrapper);
     }
 
     public void createHeader(){
@@ -93,10 +111,17 @@ public class BasicLayout extends AppLayout {
 """);
     }
 
-    public void createFooter(){
+    public Component createFooter(){
         HorizontalLayout footer = new HorizontalLayout();
+        footer.setWidthFull();
+        footer.setPadding(true);
         footer.setSpacing(true);
         footer.setAlignItems(FlexComponent.Alignment.END);
+        footer.getStyle().set("border-top", "1px solid var(--lumo-contrast-10pct)");
+        footer.getStyle().set("padding", "0.5rem 1rem");
+        footer.add(new Span("© 2025 Meine Anwendung"));
+
+        return footer;
     }
 
     public Component createNav(){

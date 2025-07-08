@@ -19,9 +19,8 @@ import java.util.stream.Collectors;
 @PageTitle("Dashboard")
 public class DashboardView extends BasicLayout {
 
-    private String title = "Dashboard";
-
     public DashboardView() {
+        String title = "Dashboard";
         setTitle(title);
         DataLoader dataLoader = new DataLoader();
         List<User> users = dataLoader.getUsers();
